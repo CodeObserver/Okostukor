@@ -79,3 +79,30 @@ while a != 1:
 
 vid.release()
 cv2.destroyAllWindows()
+
+# eltávolítjuk az első és a második képet is a mappából mert már nincs rájuk szükségünk, valamint így nem marad nyoma ezeknek az adatoknak
+os.remove(r'Ide megadjuk annak a file-nak az útvonalát amely abban a mappában van ahol ez a program és a végére odatesszük hogy \elso.jpeg')
+os.remove(r'ugyanazt az útvonalat adjuk meg itt mint az előzőnél, csak itt nem \elso.jpeg-t teszünk a végére, hanem azt hogy \masodik.jpeg')
+
+szamr = 0
+# Itt a try-on belül megnézzük hogy kitudunk e kérni adatokat az Image_data.db-ből , hogyha nem akkor a try- miatt átlép az except blokkba,ha viszont sikerül, akkor pedig eltároljuk az a változóban azt a képet byte- formában amire szükségünk van
+
+try:
+    conn = sqlite3.connect("Image_data.db")
+    results = conn.execute("SELECT * FROM Image")
+    elso = 0
+    for asd in results:
+        if elso == 0:
+            a = asd
+        szamr += 1
+        elso += 1
+# Ide akkor tér át a program, hogyha még nem volt sosem létrehozva Image_data.db adatbázis
+except:
+    # a mappánkban ebben az esetben kell lennie egy képnek arról a személyről aki majd fel tudja oldani az okostükröt és az ahhoz tartozó PATH-t kell megadni a pathtoimage változóba
+    pathtoimage = r'megadjuk ide azt az útvonalat, ahol az a kép van akit majd feltud ismerni a tükör'
+    create_database()
+    # az insert image eljárás segítségével feltöltjük az arról a személyről szóló képet az adatbázisba, aki majd feltudja oldani az okostükröt
+    insert_image(pathtoimage)
+    # ezt követően,mivel az adatbázisunkban bennevan a kép az előbb említett személyről ezért kitöröljük a mappából ezt a képet
+    os.remove(pathtoimage)
+
