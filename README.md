@@ -287,3 +287,122 @@ if hanyszorfutle == 20:
 vid.release()
 cv2.destroyAllWindows()
 
+
+
+time.sleep(2)
+
+# hogyha sikerült a mesterséges intelligenciának felismernie a kívánt személy arcát ,akkor
+# az okostükör képernyőjének létrehozása, valamint az idő kiírása a gépről
+startupscreen = tk.Tk()
+startupscreen.title('Okos tükör')
+# itt megtudjuk adni az üdvözlő üzenetet, amelynek a font family-je caviar dreams, és 40 pixel nagyságú, a háttér fekete, az írás pedig fehér
+welcometext = tk.Label(startupscreen, font=('caviar dreams', 40), bg='black', fg='white')
+startupscreen.configure(background='black')
+startupscreen.overrideredirect(True)
+# itt adjuk meg azt az üdvözlő üzenetet ami pár másodpercre ugrik fel ameddig be nem lép az okostükörhöz
+welcometext.config(text='Okos tükör belépés')
+# side=LEFT-el megadtuk hogy hova helyezze el az adott üdvözlő szöveget és az x és y kordinátákkal még jobban lehet pontosítani a helyét
+welcometext.pack(side=LEFT, padx=120, pady=80)
+
+# itt automatikusan felveszi a képernyőnk szélességét
+windowWidth = startupscreen.winfo_reqwidth()
+# itt automatikusan felveszi a képernyőnk hosszát
+windowHeight = startupscreen.winfo_reqheight()
+
+
+startupscreen.geometry("1024x768+2048+1536")
+startupscreen.update()
+
+decrypt = list()
+global iteration
+global timecount
+global repull
+global sleep
+iteration = 0
+timecount = 0
+repull = 0
+sleep = 0
+
+hanyadik = 0
+hany = 0
+szam = len(titlee)
+
+while True:
+
+    # Ezzel az eljárással folyamatosan tudjuk frissíteni az órát az okostükrön
+    def tick(time1=''):
+        time2 = time.strftime("%H")
+        if time2 != time1:
+            time1 = time2
+            clock_frame.config(text=time2)
+        clock_frame.after(1000, tick)
+
+
+    # ezzel az eljárással tudjuk frissíteni a másodpercet és a percet
+    def tickk(time3=''):
+        time4 = time.strftime(":%M:%S")
+        if time4 != time3:
+            time3 = time4
+            clock_frame2.config(text=time4)
+        clock_frame2.after(1000, tickk)
+
+
+    # végigmegyünk a friss híreken, amiket a newsapi ad nekünk, majd pedig csak azokat írjuk ki, amelyek 70 karakternél rövidebbek, hogy biztosan kiférjen az okostükörre
+    def hirr():
+        space = 0
+        be = False
+        szo = ""
+        global szam
+        global hanyadik
+        if hanyadik >= szam:
+            hanyadik = 0
+        if (len(titlee[hanyadik]) > 70):
+            be = True
+        if be == False:
+            szo = titlee[hanyadik]
+            hir.config(text=szo)
+            root.after(5000, hirr)
+        else:
+            root.after(10, hirr)
+
+        hanyadik += 1
+
+
+    # létrehozzuk az okostükör alapját és Mirror-nevet adunk neki
+    root = tk.Tk()
+    root.title('Mirror')
+
+    clock_frame = tk.Label(root, font=('caviar dreams', 50), bg='black', fg='white')
+    clock_frame.pack(anchor=NW, side=LEFT)
+    clock_frame2 = tk.Label(root, font=('caviar dreams', 50), bg='black', fg='white')
+    clock_frame2.pack(anchor=NW, side=LEFT)
+
+    # jobb oldalon felülre elhelyezzük a Győr feliratot
+    hely = tk.Label(root, font=('caviar dreams', 40), bg='black', fg='white', text="Győr")
+    hely.pack(side=TOP, anchor=NE, padx=0)
+
+    # kiírjuk a Győr felirat alá hogy hány Celsius fok van éppen Győrben
+    fok = tk.Label(root, font=('caviar dreams', 30), bg='black', fg='white', text=f'{temp + "C°"}')
+    fok.pack(side=TOP, anchor=NE, padx=0)
+    # ennek az a szerepe hogy nagyobb térköz legyen az előbb említett celsius fok és a következő szöveg között
+    humidityy3 = tk.Label(root, font=('caviar dreams', 20), bg='black', fg='white', text="")
+    humidityy3.pack(side=TOP, anchor=NE)
+    # ezzel kiírjuk a "Páratartalom" feliratot
+    humidityy = tk.Label(root, font=('caviar dreams', 30), bg='black', fg='white', text="Páratartalom")
+    humidityy.pack(side=TOP, anchor=NE, padx=0)
+    # ezzel pedig kiírjuk a páratartalmat %-os értékben a Páratartalom felirat alá
+    humidd = tk.Label(root, font=('caviar dreams', 35), bg='black', fg='white', text=f'{humidity + "%"}')
+    humidd.pack(side=TOP, anchor=NE, padx=0)
+    #ezzel írjuk ki az adott magyar híreket, amelyek bizonyos másodpercenként változnak
+    hir = tk.Label(root, font=('caviar dreams', 22), bg='black', fg='white')
+    hir.place(relx=0, rely=0.9)
+
+    tick()
+    tickk()
+    hirr()
+    root.attributes("-fullscreen", True)
+    root.configure(background='black')
+    startupscreen.destroy()
+    root.mainloop()
+
+
