@@ -197,3 +197,59 @@ while (hanyszorfutle < 20):
     hanyszorfutle += 1
 # ezt követően kitöröljük ezt a képet a mappából
 os.remove(r'mappánk helyének az útja és a végére odatesszük, hogy \asd.jpg')
+
+
+
+# hogyha nem ismerte fel az adott egyénnek az arcát aki felakarta oldani, az okostükröt, akkor emailben elküldünk
+# egy képet az adott egyénről a saját fiókunkba, valamint az időt is, hogy mikor próbálkoztak
+from time import *
+import time
+if hanyszorfutle == 20:
+    print("betolakodo probalta feloldani a tukrot!")
+    # csinálunk egy képet arról az egyénről, aki próbálkozni kívánt
+    cv2.imwrite('betolakodo.jpg', frame)
+    pathtoimage = r'A mappa neve ahol a program annak az elérési útját megadjuk ide és a végére, hogy \betolakodo.jpg'
+    # erről a betolakodóról csinált képet eltároljuk az adatbázisunkban is
+    insert_image(pathtoimage)
+    # gmail email kuldese:
+    # itt a sender_mail változóba megadjuk azt,azt email címet, amelyről küldeni fogjuk a saját email címünkre az adatokat a betolakodóról
+    sender_email = "küldő email címet ide adjuk meg"
+    # ide megadjuk hogy melyik email címre szeretnénk küldeni
+    rec_email = "az üzenetet kapó email címet ide adjuk meg"
+    # itt megkell adnunk a password változóba a küldő email címhez tarozó jelszót
+    password = ""
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # Itt tulajdonképpen belépünk a küldő email cím fiókjába automatikusan
+    server.login(sender_email, password)
+    # ebbe a változóba megadjuk hogy mi legyen annak a képnek a neve, amit majd a betolakodóról elfogunk küldeni
+    filename = "betolakodo.jpg"
+    msg = MIMEMultipart()
+    msg['To'] = rec_email
+    msg['From'] = sender_email
+    # itt a msg_ready változóba eltároljuk a pontos dátumot és időt
+    msg_ready = MIMEText(strftime("%Y.%m.%d %H:%M:%S  ", localtime()))
+    # itt az attachment változóba eltároljuk byte formában a betolakodóról származó képet
+    attachment = open(filename, "rb").read()
+    # az image_ready változóban megadhatjuk a name-hez azt hogy mi legyen annak a képnek a neve amit elküldünk
+    image_ready = MIMEImage(attachment, 'jpg', name='betoroo')
+    # Itt megadhatjuk zároljelben hogy milyen üzenetet szeretnénk küldeni
+    msg.attach(MIMEText('Valaki elment a tükör előtt!  '))
+    # itt is üzenetet küldünk csak itt a pontos időt is elküldjük
+    msg.attach(msg_ready)
+    # ezzel tudjuk csatolni a küldeni kívánt képet
+    msg.attach(image_ready)
+    # ezzel pedig csaltolunk mindent amit szerettünk volna, valamit elküldjük a megfelelő címzettnek az email-t
+    server.sendmail(sender_email, rec_email, msg.as_string())
+    vid.release()
+    cv2.destroyAllWindows()
+    # Kitöröljük a mappából a betolakodóról származó képet
+    os.remove(pathtoimage)
+    # ezt követően kilépünk a programból
+    quit()
+vid.release()
+cv2.destroyAllWindows()
+
+
+
+
