@@ -51,3 +51,31 @@ def insert_image(image):
 
     image_database.commit()
     image_database.close()
+time.sleep(5)
+# egy végtelen ciklus ami addig megy ameddig észre nem vesz valami mozgást (azaz hogyy megváltozott az eredeti kép, akkor egyből továbbmegy)
+vid = cv2.VideoCapture(0)
+
+ret, frame = vid.read()
+# egy képkocka beolvasása, ez lesz az amihez majd hasonlítjuk a videóból származó képkockát, hogy megtudjuk hogy van e valami mozgás(nagy változás a képen)
+cv2.imwrite('elso.jpeg', frame)
+# itt az elso változóban megkapjuk az első képünkhöz tartozó pixelszámot,amely még az árnyalat változásokat is figyelembe veszi
+elsoo = os.path.getsize('elso.jpeg')
+
+a = 0
+# 5 másodperc várás mielőtt elindítjuk a ciklust
+
+while a != 1:
+    ret, frame = vid.read()
+    # második jpeg kép létrehozása
+    cv2.imwrite('masodik.jpeg', frame)
+    # ennek a második képnek megnézzök a pixelszámát ugyanúgy mint az elsőnek
+    masodik = os.path.getsize('masodik.jpeg')
+    print("elso:", elsoo, " masodik:", masodik)
+
+    # hogyha 13000 pixel különbség van a két kép között akkor az nagy eséllyel jelenti azt hogy nagy változás történt azaz mozgás történt
+    if ((elsoo - masodik) > 13000 or (elsoo - masodik) < -13000):
+        a = 1
+        break
+
+vid.release()
+cv2.destroyAllWindows()
