@@ -196,4 +196,36 @@ if x["cod"] != "404":
 
 else:
     print(" City Not Found ")
+    
+    
+    
+    
+vid = cv2.VideoCapture(0)
+
+hanyszorfutle = 0
+
+# ez az a függvényünk amely 20 szor fut le, azért hogy megpróbálja a megfelelő személy arcát felismerni és ezáltal feloldani az okostükröt, hogyha felismeri a megfelelő arcot
+# ez a függvény abban a pillanatban indul el, ahogy a mozgásérzékelő érzékelte a mozgást
+while (hanyszorfutle < 20):
+
+    # Videót hozunk létre amely képkockánként megpróbálja beolvasni az adott személy arcát
+    ret, frame = vid.read()
+
+    cv2.imshow('frame', frame)
+    cv2.imwrite('asd.jpg', frame)
+    # az unknown_image változóban tároljuk el a próbálkozni kívánt személy képét
+    unknown_image = face_recognition.load_image_file('asd.jpg')
+    # hogyha sikerül felismernünk az arcot, abban a pillanatban kilépünk ebből a ciklusból és nem próbálkozunk tovább
+    try:
+        unknown_face_encoding = face_recognition.face_encodings(unknown_image)[0]
+        results = face_recognition.compare_faces([ropter_face_encoding], unknown_face_encoding)
+        if results[0] == True:
+            break
+    except:
+        # minden egyes körben ahányszor nem ismerjük fel a próbálkozni kívánt személy arcát kiírjuk hogy Ismeretlen
+        print("Ismeretlen")
+    # 1 el növeljük ezt a változót, és ha eléri a 20-at akkor automatikusan kilép a ciklusból
+    hanyszorfutle += 1
+# ezt követően kitöröljük ezt a képet a mappából
+os.remove(r'mappánk helyének az útja és a végére odatesszük, hogy \asd.jpg')
 
