@@ -105,4 +105,95 @@ except:
     insert_image(pathtoimage)
     # ezt követően,mivel az adatbázisunkban bennevan a kép az előbb említett személyről ezért kitöröljük a mappából ezt a képet
     os.remove(pathtoimage)
+    
+    
+# ide ebbe az elágazásba akkor lépünk csak bele, hogyha még sosem hoztuk létre az adatbázist a program lefuttatása előtt, mert akkor ugyanúgy az a változóban eltároljuk az első képet byte formátumban
+if szamr == 0:
+    conn = sqlite3.connect("Image_data.db")
+    results = conn.execute("SELECT * FROM Image")
+    elso = 0
+    for asd in results:
+        if elso == 0:
+            a = asd
+        elso += 1
+
+# A fent említett személyről szóló kép bíte formáját kiolvastuk az a változóba, azonban ezt egyből még nem tudjuk felhasználni, mert szintaktikai probléma miatt, elöszőr lista formában kell beletenni egy másik változóba
+conn.close()
+# a 'b' változóba beletesszük a képet elöszőr számokká alakított formában ez egy lista amely számokat tartalmaz
+b = list(a[0])
+# a 'bytes' segítségével átkonvertáljuk ezt a listát byte formátumra
+c = bytes(b)
+# itt megadjuk azt az elérési utat ahova akarjuk tenni ideiglenesen arról a személyről való képet, aki majd feltudja oldani a tükröt
+path = r'Ide kell megadni az elérési útvonalat a mappához, majd pedig megadjuk a kép nevét így a végére \kepneve.jpg'
+
+fp = open(path, 'wb')
+# ezzel pedig létrehozzuk a képet byte formában
+fp.write(c)
+fp.close()
+
+# Annak az embernek képét olvassuk be aki felfogja tudni oldani a tükröt
+image_of_me = face_recognition.load_image_file('ide adjuk meg annak a képnek a nevét és formátumát amit a 127. sorban adtunk meg pl kepneve.jpg')
+# a ropter_face_encoding változóban eltároljuk az adott személy arcának aspektusait, amit majd a mesterséges intelligencia figyelni fog feloldáskor
+ropter_face_encoding = face_recognition.face_encodings(image_of_me)[0]
+# kitöröljük a mappából a személyről szóló képet, mert már nincs rá szükség
+os.remove(path)
+# a newsapi module-nak megadjuk a saját api key -ünket, amit ingyenesen tudunk kérni az oldalon
+newsapi = NewsApiClient(api_key='ide kell megadni')
+# ezzel megtudjuk adni, hogy milyen nyelvű híreket szolgáltasson nekünk ez az API, ha ezt így hagyjuk, akkor magyar híreket fogunk kapni
+top_headlines = newsapi.get_top_headlines(country='hu')
+
+a = sources = newsapi.get_sources(country='hu')
+# ezzel az url-l magyar nyelvű híreket fogunk megkapni, az apikey= után kell megadni a saját api key-ünket
+resp = 'https://newsapi.org/v2/top-headlines?country=hu&apiKey=ide adjuk meg az api keyünket'
+# ezzel tulajdonképpen megszerezzük az előbb említett url-ről származó egész html-váz adatokat
+r = requests.get(resp)
+asdd = r.json()
+# csak az articles-t szedjük ki az io változóba
+io = asdd['articles']
+# titlee változóba regular expressions segítségével megszerezzük az cikkekből származó fejléceket/címeket
+titlee = re.findall(r'title\': \'(.*?)\'', str(asdd))
+
+jo = []
+hanyadik = 0
+
+
+# idő (weather) api-hoz tartozó key-t kell megadnunk az api_key változóba
+api_key = "ide"
+# itt található egy alap url,amit később felhasználunk egy összetettebb url létrehozásához
+base_url = "http://api.openweathermap.org/data/2.5/weather?"
+# itt a city_name változóba megtudjuk adni, hogy melyik városról szeretnénk adatokat kapni időt illetőleg
+city_name = "győr"
+# itt hozzuk létre az összetettebb url-t
+complete_url = base_url + "appid=" + api_key + "&lang=hu" + "&units=metric" + "&q=" + city_name
+# Ugyanúgy mint az előzőnél itt is megkapjuk a html-vázat
+response = requests.get(complete_url)
+
+x = response.json()
+# hogyha nem kapunk hibaüzenetet,akkor megtudjuk szerezni a különböző változókba az adatokat
+if x["cod"] != "404":
+
+
+    # az y változóban benne van minden adat amire szükségünk van ebből válogatjuk ki egyesével majd később
+    y = x["main"]
+
+    # ezzel megkapjuk a hőmérsékletet
+    current_temperature = y["temp"]
+
+
+    # a páratartalomhoz megfelelő adatot itt megkapjuk a current_humidity változóba
+    current_humidity = y["humidity"]
+
+
+    # itt egy rövid időjáráshoz tartozó leírást kapunk meg
+    weather_description = z[0]["description"]
+
+    # print following values
+    temp = str(current_temperature)
+    humidity = str(current_humidity)
+    desc = str(weather_description)
+    if len(temp) > 4:
+        temp = (str(temp[0] + temp[1] + temp[2] + temp[3]))
+
+else:
+    print(" City Not Found ")
 
